@@ -46,8 +46,8 @@
             return await response.json();
         } catch (error) {
             console.error("Fetch Error:", error);
-            alert("Error de conexión. Revisa la consola.");
-            return { success: false };
+            // CORRECCIÓN: Evitar que retorne solo success falso sin mensaje para que la vista pueda manejarlo
+            return { success: false, message: "Error de conexión con el servidor. Verifica tu URL de Apps Script." };
         }
     }
 
@@ -199,14 +199,15 @@
 
         const res = await fetchGAS('login', payload);
         
+        // CORRECCIÓN: Leer los datos desde res.data y el error desde res.message
         if (res.success) {
-            currentUser = res;
-            document.getElementById('dash-name').innerText = res.nombre;
-            document.getElementById('dash-doc').innerText = res.documento;
+            currentUser = res.data;
+            document.getElementById('dash-name').innerText = res.data.nombre;
+            document.getElementById('dash-doc').innerText = res.data.documento;
             showView('view-dashboard');
             document.getElementById('log-pass').value = '';
         } else {
-            alert(res.error);
+            alert(res.message);
         }
         
         btn.innerHTML = 'Ingresar';
@@ -219,7 +220,6 @@
     }
 
     // === LÓGICA DE REGISTRO ===
-    // Bloquear Pegado en Confirmar Contraseña
     document.getElementById('reg-pass-conf').addEventListener('paste', e => e.preventDefault());
 
     function generateUsername() {
@@ -279,7 +279,9 @@
         };
 
         const res = await fetchGAS('registrarUsuario', payload);
-        alert(res.success ? "Registro exitoso. Ya puedes iniciar sesión." : res.error);
+        
+        // CORRECCIÓN: Leer el error desde res.message
+        alert(res.success ? "Registro exitoso. Ya puedes iniciar sesión." : res.message);
         
         if(res.success) {
             e.target.reset();
@@ -300,7 +302,6 @@
         document.getElementById('file-name-display').innerText = file.name;
         document.getElementById('preview-container').classList.remove('hidden');
 
-        // Compresión de imagen si aplica
         if (file.type.startsWith('image/')) {
             const reader = new FileReader();
             reader.onload = (e) => {
@@ -320,7 +321,6 @@
                     const ctx = canvas.getContext('2d');
                     ctx.drawImage(img, 0, 0, width, height);
                     
-                    // Comprimir a 0.6
                     const dataUrl = canvas.toDataURL('image/jpeg', 0.6);
                     currentFile = {
                         base64: dataUrl,
@@ -332,7 +332,6 @@
             };
             reader.readAsDataURL(file);
         } else {
-            // Archivos normales (PDF, Docx)
             const reader = new FileReader();
             reader.onload = (e) => {
                 currentFile = {
@@ -369,6 +368,7 @@
 
         const res = await fetchGAS('subirArchivo', payload);
         
+        // CORRECCIÓN: Leer el error desde res.message
         if (res.success) {
             alert('Archivo subido con éxito.');
             document.getElementById('preview-container').classList.add('hidden');
@@ -376,7 +376,7 @@
             document.getElementById('file-pc').value = '';
             currentFile = null;
         } else {
-            alert('Error al subir el archivo: ' + res.error);
+            alert('Error al subir el archivo: ' + res.message);
         }
 
         btn.disabled = false;
