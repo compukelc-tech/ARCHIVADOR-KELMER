@@ -484,15 +484,17 @@ async function subirArchivo() {
       archivoBase64Comprimido = null;
       archivoNombreActual = null;
       archivoMimeActual = null;
+      btn.disabled = true; // se rehabilita solo al seleccionar un nuevo archivo
     } else {
       errorBox.textContent = resultado.message;
       errorBox.classList.remove('hidden');
+      btn.disabled = false; // el archivo sigue cargado: permite reintentar sin reseleccionar
     }
   } catch (error) {
     errorBox.textContent = 'No fue posible conectar con el servidor.';
     errorBox.classList.remove('hidden');
+    btn.disabled = false; // permite reintentar sin reseleccionar el archivo
   } finally {
-    btn.disabled = true; // se rehabilita solo al seleccionar un nuevo archivo
     spinner.classList.add('hidden');
   }
 }
