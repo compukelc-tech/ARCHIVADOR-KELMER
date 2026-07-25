@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="styles.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#0d1117">
+    <!-- Librería para crear PDFs en el cliente -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </head>
 <body>
 
@@ -45,10 +47,20 @@
 
         <div class="card upload-card">
             <h3>Subir Archivos</h3>
+            
+            <!-- NUEVO: Botones de Escaneo -->
+            <div class="scanner-actions">
+                <button class="btn scan-btn" id="btnScanMobile">📸 Escanear (Cámara/Móvil)</button>
+                <button class="btn scan-btn" id="btnScanPC">🖨️ Escanear (PC)</button>
+            </div>
+            
+            <!-- Inputs ocultos para cámara y archivos -->
+            <input type="file" id="cameraInput" accept="image/*" capture="environment" hidden>
+            <input type="file" id="fileInput" multiple hidden>
+
             <div class="upload-zone" id="dropZone">
-                <p>Arrastra tus archivos aquí o haz clic para seleccionar</p>
-                <input type="file" id="fileInput" multiple hidden>
-                <button class="btn secondary-btn" onclick="document.getElementById('fileInput').click()">Examinar</button>
+                <p>Arrastra tus archivos aquí o haz clic para seleccionar (Examinar)</p>
+                <button class="btn secondary-btn" onclick="document.getElementById('fileInput').click()">Examinar Archivos</button>
             </div>
             
             <div id="fileList" class="file-list"></div>
@@ -56,9 +68,7 @@
             <div class="input-group form-folder">
                 <label for="folderInput">Carpeta de destino:</label>
                 <input type="text" id="folderInput" list="folderOptions" placeholder="Escribe o selecciona..." required>
-                <datalist id="folderOptions">
-                    <!-- Se llena dinámicamente -->
-                </datalist>
+                <datalist id="folderOptions"></datalist>
             </div>
 
             <button id="btnUpload" class="btn primary-btn" disabled>Subir a la nube</button>
@@ -94,9 +104,7 @@
                         <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody id="recordsBody">
-                    <!-- Se llena dinámicamente -->
-                </tbody>
+                <tbody id="recordsBody"></tbody>
             </table>
         </div>
     </div>
@@ -104,5 +112,4 @@
     <script src="app.js"></script>
 </body>
 </html>
-
 
