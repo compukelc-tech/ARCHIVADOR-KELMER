@@ -126,7 +126,7 @@ function updateFileList() {
 }
 
 // ==========================================
-// NUEVO: LÓGICA DE ESCÁNER (CÁMARA / PC)
+// LÓGICA DE ESCÁNER (CÁMARA / PC)
 // ==========================================
 function startPCScan() {
     alert("Por seguridad web, no es posible controlar el escáner físico desde el navegador.\n\nPor favor, usa el programa de tu PC para escanear el documento, guárdalo y luego selecciónalo aquí.");
@@ -161,22 +161,20 @@ async function handleCameraCapture(e) {
     if (!file) return;
 
     if (currentScanFormat === 'JPG') {
-        // Renombrar archivo y añadir a la lista
         const d = new Date();
         const customName = `Escaneo_${d.getTime()}.jpg`;
         const renamedFile = new File([file], customName, { type: file.type });
         selectedFiles.push(renamedFile);
         updateFileList();
-        e.target.value = ''; // Reset
+        e.target.value = ''; 
     } else if (currentScanFormat === 'PDF') {
-        // Reducir la imagen para el PDF usando Canvas y guardar en array temporal
         const compressedBase64 = await compressImageToBase64(file);
         pdfPagesImages.push(compressedBase64);
 
         if (isMultiPageScan) {
             const addMore = confirm("Página capturada con éxito.\n¿Deseas añadir otra página al mismo PDF?");
             if (addMore) {
-                e.target.value = ''; // Reset para poder capturar de nuevo
+                e.target.value = ''; 
                 document.getElementById('cameraInput').click();
             } else {
                 generatePDFfromImages();
@@ -187,7 +185,6 @@ async function handleCameraCapture(e) {
     }
 }
 
-// Comprime la foto de la cámara para que el PDF no pese 20MB
 async function compressImageToBase64(file) {
     return new Promise((resolve) => {
         const reader = new FileReader();
@@ -209,7 +206,6 @@ async function compressImageToBase64(file) {
     });
 }
 
-// Genera un archivo PDF final a partir de las fotos capturadas
 function generatePDFfromImages() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF('p', 'mm', 'a4');
@@ -218,11 +214,9 @@ function generatePDFfromImages() {
 
     pdfPagesImages.forEach((imgData, index) => {
         if (index > 0) doc.addPage();
-        // Insertar imagen estirándola para ajustarse al A4 (modo documento)
         doc.addImage(imgData, 'JPEG', 0, 0, pageWidth, pageHeight);
     });
 
-    // Convertir el PDF generado a un objeto File para subirlo
     const pdfBlob = doc.output('blob');
     const d = new Date();
     const pdfFile = new File([pdfBlob], `Documento_Escaneado_${d.getTime()}.pdf`, { type: 'application/pdf' });
@@ -230,7 +224,6 @@ function generatePDFfromImages() {
     selectedFiles.push(pdfFile);
     updateFileList();
     
-    // Limpiar variables de escaneo
     pdfPagesImages = [];
     document.getElementById('cameraInput').value = '';
     alert("PDF generado y listo para subir.");
@@ -242,7 +235,6 @@ function generatePDFfromImages() {
 async function processFileForUpload(file) {
     return new Promise((resolve) => {
         if (file.type.startsWith('image/')) {
-            // Compresión de imágenes subidas manualmente
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = (event) => {
@@ -260,7 +252,6 @@ async function processFileForUpload(file) {
                 };
             };
         } else {
-            // Documentos, PDFs generados, Excels
             const reader = new FileReader();
             reader.readAsDataURL(file);
             reader.onload = () => resolve({ base64: reader.result.split(',')[1], mimeType: file.type, name: file.name });
@@ -359,4 +350,3 @@ function renderTable() {
         tbody.innerHTML += `<tr><td>${d.getDate()}/${d.getMonth()+1}/${d.getFullYear()}</td><td>${r.nombre}</td><td>${r.carpeta}</td><td><a href="${r.url}" target="_blank">Ver 🔗</a></td></tr>`;
     });
 }
-
