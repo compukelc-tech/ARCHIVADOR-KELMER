@@ -1,175 +1,108 @@
 <!DOCTYPE html>
-<html>
+<html lang="es">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  
-  <!-- CORRECCIÓN: Inyección de Tailwind CSS para renderizar los estilos -->
-  <script src="https://cdn.tailwindcss.com"></script>
-  <!-- Inyección de FontAwesome -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-  
-  <style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600&display=swap');
-    body { font-family: 'Inter', system-ui, sans-serif; }
-    .glass { background: rgba(255,255,255,0.05); backdrop-filter: blur(12px); }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Archivo Personal | compukelc</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#0d1117">
 </head>
-<body class="bg-gray-950 text-gray-100 min-h-screen">
+<body>
 
-  <!-- Header -->
-  <header class="border-b border-gray-800 bg-gray-900">
-    <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold tracking-tight">Archivador Digital</h1>
-      <div id="user-info" class="flex items-center gap-3"></div>
+    <!-- VISTA: LOGIN -->
+    <div id="loginView" class="view-container active">
+        <div class="card login-card">
+            <h2 class="brand-title">compukelc</h2>
+            <p>Sistema de Archivo Personal</p>
+            <form id="loginForm">
+                <div class="input-group">
+                    <input type="text" id="username" placeholder="Usuario" required>
+                </div>
+                <div class="input-group password-group">
+                    <input type="password" id="password" placeholder="Contraseña" required>
+                    <button type="button" id="togglePassword" class="icon-btn">👁️</button>
+                </div>
+                <div class="remember-group">
+                    <input type="checkbox" id="rememberMe">
+                    <label for="rememberMe">Recordar usuario</label>
+                </div>
+                <button type="submit" class="btn primary-btn" id="loginBtn">Ingresar</button>
+                <div id="loginError" class="error-msg"></div>
+            </form>
+        </div>
     </div>
-  </header>
 
-  <div class="flex">
-    <!-- Sidebar -->
-    <nav class="w-64 border-r border-gray-800 bg-gray-900 min-h-[calc(100vh-73px)] p-6">
-      <ul class="space-y-2">
-        <li><a href="#" onclick="showSection('dashboard')" class="block px-4 py-3 rounded-xl hover:bg-gray-800 transition"><i class="fa-solid fa-house mr-2"></i> Dashboard</a></li>
-        <li><a href="#" onclick="showSection('upload')" class="block px-4 py-3 rounded-xl hover:bg-gray-800 transition"><i class="fa-solid fa-upload mr-2"></i> Subir Archivos</a></li>
-        <li><a href="#" onclick="showSection('files')" class="block px-4 py-3 rounded-xl hover:bg-gray-800 transition"><i class="fa-solid fa-folder mr-2"></i> Mis Archivos</a></li>
-        <li><a href="#" onclick="showSection('admin')" class="block px-4 py-3 rounded-xl hover:bg-gray-800 text-amber-400 transition"><i class="fa-solid fa-gear mr-2"></i> Admin</a></li>
-      </ul>
-    </nav>
-
-    <!-- Main Content -->
-    <main class="flex-1 p-8" id="main-content">
-      <!-- Se cargará dinámicamente -->
-    </main>
-  </div>
-
-  <script>
-    // Variables globales
-    let currentUser = null;
-    let googleToken = null;
-
-    // Al cargar la página, mostramos un inicio por defecto para probar visualmente
-    window.onload = () => {
-      showSection('dashboard');
-    };
-
-    // Google Sign-In
-    function handleCredentialResponse(response) {
-      googleToken = response.credential;
-      google.script.run
-        .withSuccessHandler(onUserVerified)
-        .withFailureHandler(onError)
-        .verifyGoogleToken(googleToken);
-    }
-
-    function onUserVerified(result) {
-      if (result.success) {
-        currentUser = result.user;
-        document.getElementById('user-info').innerHTML = `
-          <span class="text-sm font-medium">${currentUser[1]}</span>
-          <button onclick="logout()" class="ml-4 px-4 py-2 bg-red-600 hover:bg-red-700 transition rounded-xl text-sm font-bold">Cerrar sesión</button>
-        `;
-        showSection('dashboard');
-      } else {
-        alert(result.message || 'Error al verificar usuario');
-      }
-    }
-
-    function onError(err) {
-      console.error(err);
-      alert('Error de autenticación: Verifica la consola.');
-    }
-
-    // Mostrar secciones
-    function showSection(section) {
-      const content = document.getElementById('main-content');
-      
-      if (section === 'dashboard') {
-        content.innerHTML = `
-          <h2 class="text-3xl font-semibold mb-8">Bienvenido, ${currentUser ? currentUser[1] : 'Usuario Invitado'}</h2>
-          <div class="glass p-6 rounded-2xl border border-gray-800">
-            <p class="text-gray-400">Panel principal. Selecciona una opción en el menú lateral.</p>
-          </div>
-        `;
-      } 
-      else if (section === 'upload') {
-        content.innerHTML = `
-          <div class="max-w-2xl">
-            <h2 class="text-2xl font-semibold mb-6">Subir Archivos</h2>
-            <div class="p-8 border-2 border-dashed border-gray-700 rounded-2xl bg-gray-900/50">
-              <input type="file" id="fileInput" multiple class="block w-full text-sm text-gray-400 file:mr-4 file:py-3 file:px-6 file:rounded-xl file:border-0 file:text-sm file:font-semibold file:bg-blue-600 file:text-white hover:file:bg-blue-700 transition cursor-pointer" />
+    <!-- VISTA: PANEL PRINCIPAL (SUBIDA) -->
+    <div id="dashboardView" class="view-container hidden">
+        <header class="app-header">
+            <h2>Mi Archivo</h2>
+            <div class="header-actions">
+                <button id="btnDocumentos" class="btn secondary-btn">📚 Documentos</button>
+                <button id="btnLogout" class="btn danger-btn">Cerrar Sesión</button>
             </div>
-            <div class="mt-6 flex gap-4">
-              <button onclick="uploadFiles()" class="flex-1 bg-blue-600 hover:bg-blue-700 transition py-4 rounded-2xl font-bold shadow-lg shadow-blue-900/20"><i class="fa-solid fa-cloud-arrow-up mr-2"></i> Subir Archivos</button>
-              <button onclick="document.getElementById('fileInput').click()" class="flex-1 border border-gray-700 hover:bg-gray-800 transition py-4 rounded-2xl font-semibold">Seleccionar más</button>
+        </header>
+
+        <div class="card upload-card">
+            <h3>Subir Archivos</h3>
+            <div class="upload-zone" id="dropZone">
+                <p>Arrastra tus archivos aquí o haz clic para seleccionar</p>
+                <input type="file" id="fileInput" multiple hidden>
+                <button class="btn secondary-btn" onclick="document.getElementById('fileInput').click()">Examinar</button>
             </div>
-          </div>
-        `;
-      }
-      else {
-        content.innerHTML = `<h2 class="text-2xl font-semibold mb-6 text-gray-500">Sección en construcción...</h2>`;
-      }
-    }
+            
+            <div id="fileList" class="file-list"></div>
 
-    // Logout
-    function logout() {
-      currentUser = null;
-      document.getElementById('user-info').innerHTML = '';
-      showSection('dashboard');
-    }
+            <div class="input-group form-folder">
+                <label for="folderInput">Carpeta de destino:</label>
+                <input type="text" id="folderInput" list="folderOptions" placeholder="Escribe o selecciona..." required>
+                <datalist id="folderOptions">
+                    <!-- Se llena dinámicamente -->
+                </datalist>
+            </div>
 
-    // Subir archivos (con compresión)
-    function uploadFiles() {
-      const files = document.getElementById('fileInput').files;
-      if (!files.length) return alert('Selecciona al menos un archivo');
+            <button id="btnUpload" class="btn primary-btn" disabled>Subir a la nube</button>
+            <div id="uploadStatus"></div>
+        </div>
+    </div>
 
-      // Validar sesión (descomentar si es obligatorio estar logueado para subir)
-      // if (!currentUser) return alert('Debes iniciar sesión primero');
+    <!-- VISTA: DOCUMENTOS (REGISTROS) -->
+    <div id="documentsView" class="view-container hidden">
+        <header class="app-header">
+            <h2>Control y Registro</h2>
+            <button id="btnVolver" class="btn secondary-btn">⬅ Volver</button>
+        </header>
 
-      Array.from(files).forEach(file => {
-        if (file.type.startsWith('image/')) {
-          compressAndUploadImage(file);
-        } else {
-          alert('Función de subida normal pendiente de implementar para: ' + file.name);
-        }
-      });
-    }
+        <div class="card filter-card">
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Buscar archivo o carpeta (Fuzzy search)...">
+            </div>
+            <div class="filters">
+                <select id="filterYear"><option value="ALL">Todos los Años</option></select>
+                <select id="filterMonth"><option value="ALL">Todos los Meses</option></select>
+                <select id="filterDay"><option value="ALL">Todos los Días</option></select>
+            </div>
+        </div>
 
-    function compressAndUploadImage(file) {
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-          const canvas = document.createElement('canvas');
-          const ctx = canvas.getContext('2d');
-          
-          let width = img.width;
-          let height = img.height;
-          
-          if (width > 1920) {
-            height = Math.round(height * 1920 / width);
-            width = 1920;
-          }
-          
-          canvas.width = width;
-          canvas.height = height;
-          ctx.drawImage(img, 0, 0, width, height);
-          
-          const compressed = canvas.toDataURL('image/jpeg', 0.78);
-          
-          // Llama al backend de Google Apps Script
-          google.script.run
-            .withSuccessHandler((res) => {
-              if(res.success) alert('✅ Archivo subido: ' + file.name);
-              else alert('❌ Error: ' + res.message);
-            })
-            .withFailureHandler(err => console.error(err))
-            .uploadFile(compressed, file.name, 'image/jpeg', true, currentUser ? currentUser[4] : 'Invitado');
-        };
-        img.src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-  </script>
+        <div class="table-container">
+            <table id="recordsTable">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Nombre</th>
+                        <th>Carpeta</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="recordsBody">
+                    <!-- Se llena dinámicamente -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
 </body>
 </html>
+
+
